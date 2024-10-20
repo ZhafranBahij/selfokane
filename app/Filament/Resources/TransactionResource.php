@@ -55,9 +55,15 @@ class TransactionResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('budget_source.name'),
-                TextColumn::make('transaction_type.name'),
-                TextColumn::make('nominal'),
-                TextColumn::make('description'),
+                TextColumn::make('transaction_type.name')
+                ->color(fn (string $state): string => match ($state) {
+                    'mutation' => 'warning',
+                    'income' => 'success',
+                    'expense' => 'danger',
+                })
+                ->description(fn (Transaction $record): string => $record->description),
+                TextColumn::make('nominal')
+                ->money('IDR', divideBy: 0),
                 TextColumn::make('date'),
             ])
             ->filters([
