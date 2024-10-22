@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\BudgetSource;
+use App\Models\Category;
 use App\Models\TransactionType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -18,6 +19,7 @@ return new class extends Migration
             $table->foreignIdFor(BudgetSource::class);
             $table->foreignIdFor(BudgetSource::class, 'budget_source_to_id')->nullable();
             $table->foreignIdFor(TransactionType::class);
+            $table->foreignIdFor(Category::class);
             $table->integer('nominal');
             $table->string('description');
             $table->date('date');

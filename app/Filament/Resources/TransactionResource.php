@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\TransactionResource\Pages;
 use App\Filament\Resources\TransactionResource\RelationManagers;
 use App\Models\BudgetSource;
+use App\Models\Category;
 use App\Models\Transaction;
 use App\Models\TransactionType;
 use Filament\Forms;
@@ -42,6 +43,12 @@ class TransactionResource extends Resource
                     ->searchable()
                     ->preload()
                     ->required(),
+                Select::make('category_id')
+                    ->label('Category')
+                    ->options(Category::all()->pluck('name', 'id'))
+                    ->searchable()
+                    ->preload()
+                    ->required(),
                 TextInput::make('nominal')->numeric()->required(),
                 TextInput::make('description')->string()->required(),
                 DatePicker::make('date')
@@ -63,7 +70,8 @@ class TransactionResource extends Resource
                 })
                 ->description(fn (Transaction $record): string => $record->description),
                 TextColumn::make('nominal')
-                ->money('IDR', divideBy: 0),
+                ->money('IDR', divideBy: 0)
+                ->description(fn (Transaction $record): string => $record->category->name),
                 TextColumn::make('date'),
             ])
             ->filters([
