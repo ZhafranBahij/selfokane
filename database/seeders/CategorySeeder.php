@@ -19,5 +19,8 @@ class CategorySeeder extends Seeder
         Category::create([
             'name' => 'living',
         ]);
+        Category::create([
+            'name' => 'etc',
+        ]);
     }
 }
