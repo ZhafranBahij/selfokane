@@ -23,16 +23,29 @@ class TransactionOverview extends BaseWidget
         ])
         ->sum('nominal');
 
-        // $grouping = Transaction::query()
-        //             ->groupBy('budget_source_id')
-        //             ->get();
-        // $grouping = Transaction::query()
-        //                 ->select(DB::raw('SUM(nominal) as nominal'))
-        //                 ->groupBy('budget_source_id', 'transaction_type_id')
-        //                 ->get();
-        // dd($grouping);
+        $group_by_budget = Transaction::query()
+                        ->with(['budget_source'])
+                        ->selectRaw('SUM(nominal) as total_nominal, budget_source_id')
+                        ->groupBy('budget_source_id')
+                        ->get();
 
-        $total = $income - $expense;
+        $group_by_category = Transaction::query()
+                        ->with(['category'])
+                        ->selectRaw('SUM(nominal) as total_nominal, category_id')
+                        ->groupBy('category_id')
+                        ->get();
+
+        $total = $income + $expense;
+
+        $new_stat = [];
+
+        foreach ($group_by_category as $key => $value) {
+            $new_stat[] = Stat::make($value->category->name, 'Rp. '.number_format($value->total_nominal) ?? 0);
+        }
+
+        foreach ($group_by_budget as $key => $value) {
+            $new_stat[] = Stat::make($value->budget_source->name, 'Rp. '.number_format($value->total_nominal) ?? 0);
+        }
 
         return [
             // Total
@@ -43,6 +56,9 @@ class TransactionOverview extends BaseWidget
 
             // Expense
             Stat::make('Expense', 'Rp. '.number_format($expense) ?? 0),
+
+            // Another
+            ...$new_stat,
         ];
     }
 }

@@ -10,6 +10,14 @@ class ManageTransactions extends ManageRecords
 {
     protected static string $resource = TransactionResource::class;
 
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        dd('Hallo');
+        // $data['user_id'] = auth()->id();
+
+        return $data;
+    }
+
     protected function getHeaderActions(): array
     {
         return [

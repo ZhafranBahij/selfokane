@@ -78,10 +78,11 @@ class TransactionResource extends Resource
                     'income' => 'success',
                     'expense' => 'danger',
                 })
-                ->description(fn (Transaction $record): string => $record->description),
+                ->description(fn (Transaction $record): string => $record->description)
+                ->limit(50),
                 TextColumn::make('nominal')
                 ->money('IDR', divideBy: 0)
-                ->description(fn (Transaction $record): string => $record->category->name),
+                ->description(fn (Transaction $record): string => $record->category->name ?? '-'),
                 TextColumn::make('date'),
             ])
             ->filters([
