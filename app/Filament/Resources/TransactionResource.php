@@ -33,10 +33,15 @@ class TransactionResource extends Resource
             ->schema([
                 Select::make('budget_source_id')
                     ->label('Budget Source')
+                    ->relationship('budget_source', 'name')
                     ->options(BudgetSource::all()->pluck('name', 'id'))
                     ->searchable()
                     ->preload()
-                    ->required(),
+                    ->required()
+                    ->createOptionForm([
+                        TextInput::make('name')
+                        ->required(),
+                    ]),
                 Select::make('transaction_type_id')
                     ->label('Transaction Type')
                     ->options(TransactionType::all()->pluck('name', 'id'))
@@ -45,10 +50,15 @@ class TransactionResource extends Resource
                     ->required(),
                 Select::make('category_id')
                     ->label('Category')
+                    ->relationship('category', 'name')
                     ->options(Category::all()->pluck('name', 'id'))
                     ->searchable()
                     ->preload()
-                    ->required(),
+                    ->required()
+                    ->createOptionForm([
+                        TextInput::make('name')
+                        ->required(),
+                    ]),
                 TextInput::make('nominal')->numeric()->required(),
                 TextInput::make('description')->string()->required(),
                 DatePicker::make('date')
