@@ -3,12 +3,10 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\TransactionResource\Pages;
-use App\Filament\Resources\TransactionResource\RelationManagers;
 use App\Models\BudgetSource;
 use App\Models\Category;
 use App\Models\Transaction;
 use App\Models\TransactionType;
-use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -19,7 +17,6 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class TransactionResource extends Resource
 {
@@ -82,11 +79,17 @@ class TransactionResource extends Resource
                 ->limit(50),
                 TextColumn::make('nominal')
                 ->money('IDR', divideBy: 0)
+                ->sortable()
                 ->description(fn (Transaction $record): string => $record->category->name ?? '-'),
-                TextColumn::make('date'),
+                TextColumn::make('date')
+                ->sortable(),
             ])
+            ->defaultSort('id', 'desc')
             ->filters([
-                //
+                Filter::make('expense')
+                    ->query(fn (Builder $query): Builder => $query->whereRelation('transaction_type', 'name', 'expense')),
+                Filter::make('income')
+                    ->query(fn (Builder $query): Builder => $query->whereRelation('transaction_type', 'name', 'income')),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
