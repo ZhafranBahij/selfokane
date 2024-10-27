@@ -90,6 +90,10 @@ class TransactionResource extends Resource
                     ->query(fn (Builder $query): Builder => $query->whereRelation('transaction_type', 'name', 'expense')),
                 Filter::make('income')
                     ->query(fn (Builder $query): Builder => $query->whereRelation('transaction_type', 'name', 'income')),
+                Filter::make('this_month')
+                    ->query(fn (Builder $query): Builder => $query->whereMonth('date', now())),
+                Filter::make('this_year')
+                    ->query(fn (Builder $query): Builder => $query->whereYear('date', now())),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
