@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\BudgetSource;
 use App\Models\Transaction;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;

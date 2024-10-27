@@ -3,11 +3,19 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class BudgetSource extends Model
 {
-    public function transaction()
+
+    public function transactions(): HasMany
     {
-        return $this->hasMany(BudgetSource::class);
+        return $this->hasMany(Transaction::class);
     }
+
+    public function totalTransaction()
+    {
+        return $this->hasMany(Transaction::class)->sum('nominal');
+    }
+
 }

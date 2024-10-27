@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\BudgetSourceResource\Pages;
 use App\Filament\Resources\BudgetSourceResource\RelationManagers;
 use App\Models\BudgetSource;
+use App\Models\Transaction;
 use Filament\Forms;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -36,7 +37,11 @@ class BudgetSourceResource extends Resource
             ->columns([
                 TextColumn::make('name')
                 ->description(fn (BudgetSource $record): string => $record->description ?? '-'),
-                TextColumn::make('nominal'),
+                TextColumn::make('nominal')
+                    ->state(function (BudgetSource $record): float {
+                        return $record->totalTransaction();
+                    })
+                    ->money('IDR', divideBy: 0),
             ])
             ->filters([
                 //
