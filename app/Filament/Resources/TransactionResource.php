@@ -17,6 +17,9 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
+use Illuminate\Support\Str;
 
 class TransactionResource extends Resource
 {
@@ -44,6 +47,16 @@ class TransactionResource extends Resource
                     ->options(TransactionType::all()->pluck('name', 'id'))
                     ->searchable()
                     ->preload()
+                    ->afterStateUpdated(function (Get $get, Set $set, ?string $old, ?string $state) {
+                        if ($get('transaction_type_id') == 2) {
+                            $set('nominal', $get('nominal') * -1) ;
+                            return;
+                        }
+                        if ($get('transaction_type_id') == 1) {
+                            $set('nominal', abs($get('nominal'))) ;
+                        }
+                    })
+                    ->live(onBlur: true)
                     ->required(),
                 Select::make('category_id')
                     ->label('Category')
@@ -56,8 +69,22 @@ class TransactionResource extends Resource
                         TextInput::make('name')
                         ->required(),
                     ]),
-                TextInput::make('nominal')->numeric()->required(),
-                TextInput::make('description')->string()->required(),
+                TextInput::make('nominal')
+                    ->numeric()
+                    ->afterStateUpdated(function (Get $get, Set $set, ?string $old, ?string $state) {
+                        if ($get('transaction_type_id') == 2) {
+                            $set('nominal', abs($get('nominal')) * -1) ;
+                            return;
+                        }
+                        if ($get('transaction_type_id') == 1) {
+                            $set('nominal', abs($get('nominal'))) ;
+                        }
+                    })
+                    ->live(onBlur: true)
+                    ->required(),
+                TextInput::make('description')
+                    ->string()
+                    ->required(),
                 DatePicker::make('date')
                                 ->required()
                                 ->maxDate(now()),
