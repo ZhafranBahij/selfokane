@@ -20,6 +20,11 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Illuminate\Support\Str;
+use Filament\Tables\Columns\Summarizers\Average;
+use Filament\Tables\Columns\Summarizers\Range;
+use Filament\Tables\Columns\Summarizers\Sum;
+use Filament\Tables\Filters\QueryBuilder\Constraints\DateConstraint;
+use Filament\Tables\Filters\SelectFilter;
 
 class TransactionResource extends Resource
 {
@@ -95,24 +100,36 @@ class TransactionResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('budget_source.name'),
+                TextColumn::make('budget_source.name')
+                ->searchable(),
                 TextColumn::make('transaction_type.name')
                 ->color(fn (string $state): string => match ($state) {
                     'mutation' => 'warning',
                     'income' => 'success',
                     'expense' => 'danger',
                 })
+                ->searchable()
                 ->description(fn (Transaction $record): string => $record->description)
                 ->limit(50),
                 TextColumn::make('nominal')
+                ->summarize([
+                    Average::make(),
+                    Sum::make(),
+                ])
                 ->money('IDR', divideBy: 0)
                 ->sortable()
                 ->description(fn (Transaction $record): string => $record->category->name ?? '-'),
                 TextColumn::make('date')
+                ->searchable()
                 ->sortable(),
             ])
             ->defaultSort('id', 'desc')
             ->filters([
+                SelectFilter::make('category')
+                    ->relationship('category', 'name')
+                    ->multiple()
+                    ->searchable()
+                    ->preload(),
                 Filter::make('expense')
                     ->query(fn (Builder $query): Builder => $query->whereRelation('transaction_type', 'name', 'expense')),
                 Filter::make('income')
@@ -121,6 +138,22 @@ class TransactionResource extends Resource
                     ->query(fn (Builder $query): Builder => $query->whereMonth('date', now())),
                 Filter::make('this_year')
                     ->query(fn (Builder $query): Builder => $query->whereYear('date', now())),
+                Filter::make('created_at')
+                    ->form([
+                        DatePicker::make('start_date'),
+                        DatePicker::make('end_date'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['start_date'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                            )
+                            ->when(
+                                $data['end_date'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                            );
+                    }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

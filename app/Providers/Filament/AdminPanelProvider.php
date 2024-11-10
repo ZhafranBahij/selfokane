@@ -56,6 +56,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->profile()
             ->sidebarCollapsibleOnDesktop()
+            ->font('Poppins')
             ->spa();
     }
 }
