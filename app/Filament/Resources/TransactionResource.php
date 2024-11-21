@@ -25,6 +25,9 @@ use Filament\Tables\Columns\Summarizers\Range;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Filters\QueryBuilder\Constraints\DateConstraint;
 use Filament\Tables\Filters\SelectFilter;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportAction;
+use pxlrbt\FilamentExcel\Exports\ExcelExport;
 
 class TransactionResource extends Resource
 {
@@ -158,11 +161,20 @@ class TransactionResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
+                // ExportAction::make()->exports([
+                //     ExcelExport::make('table')->fromTable(),
+                //     ExcelExport::make('form')->fromForm(),
+                // ])
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
+                ExportBulkAction::make()->exports([
+                    ExcelExport::make('table')->fromTable(),
+                    ExcelExport::make('form')->fromForm(),
+                ])
+                // ExportBulkAction::make(),
             ]);
     }
 
